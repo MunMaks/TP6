@@ -34,11 +34,8 @@ int main (int argc, char *argv[]){
     char *mode = *(argv + 1);
 
     // Si on a mis quelque chose après caractère '-'
-    affiche_options(mode, &affiche_char, &affiche_mots, &affiche_lignes, &affiche_version);
-    
-    // Si on n'a rien fournie donc on dit par défault: lignes, mots, caractères
-    if (!affiche_char && !affiche_mots && !affiche_lignes) { affiche_char = 1; affiche_mots = 1; affiche_lignes = 1; }
-    
+    affiche_options(mode, &affiche_char, &affiche_mots, &affiche_lignes, &affiche_version);  // gestion des options
+        
     // On parcours tous les fichiers
     while (*++argv){
         if ((*argv)[0] == '-') continue;  // pour éviter l'ouverture des options comme fichier
@@ -89,7 +86,6 @@ int compteCaracteres(FILE * file){
 
 void compteTout(FILE *file, int *caracteres, int *mots, int *lignes) {
     int ch;
-    int inWord = 0;
 
     *caracteres = 0;  //compteCaracteres(file);
     *mots = 0;        //compteMots(file);
@@ -98,25 +94,26 @@ void compteTout(FILE *file, int *caracteres, int *mots, int *lignes) {
     while ((ch = fgetc(file)) != EOF) {
         if (ch == '\n') { (*lignes)++; }
 
-        if (ch == ' ' || ch == '\t' || ch == '\n') { inWord = 0; }
-        else if (!inWord) {
-            inWord = 1;
-            (*mots)++; }
+        if (ch == ' ' || ch == '\t' || ch == '\n') { (*mots)++; }
+
         (*caracteres)++;
     }
+
+    (*mots)++;
     (*lignes)++;
 }
 
 void affiche_options(char *mode, int *affiche_char, int *affiche_mots, int *affiche_lignes, int *affiche_version){
-    for (int i = 1; i < len_word(mode); ++i){
-        if (*mode == '-' && strlen(mode) > 1){
+    if (*mode == '-' && strlen(mode) > 1){
+        for (int i = 1; i < len_word(mode); ++i){
             if (*(mode + i) == 'l') { *affiche_lignes = 1; }
             else if (*(mode + i) == 'm') { *affiche_mots = 1; }
             else if (*(mode + i) == 'c') { *affiche_char = 1; }
             else if (*(mode + i) == 'v') { *affiche_version = 1; }
-            else { usage(mode); printf("Veuillez réessayez!\n"); }
+            else { usage(mode); }
         }
-    }
+    } else
+        *affiche_lignes = *affiche_mots = *affiche_version = 1; //*affiche_char = 1;
 }
 
 void affiche_synopsis(int affiche_char, int affiche_mots, int affiche_lignes, int affiche_version, int caracteres, int mots, int lignes){
@@ -127,6 +124,7 @@ void affiche_synopsis(int affiche_char, int affiche_mots, int affiche_lignes, in
 }
 
 void usage(char *nom){
-    printf("Erreur une option invalide est fournie: %s\n", nom);
-    printf("Après '-' vous ne devez utiliser que ces 4 lettres: 'l', 'm', 'c', 'v'.\n\n");
+    printf("USAGE : my_wc [-mlvc] [fichier1] [fichier2] [...]\n");
+    printf("\tErreur : une option invalide est fournie: %s\n", nom);
+    printf("\tAprès '-' vous ne devez utiliser que ces 4 lettres: 'l', 'm', 'c', 'v'.\n");
 }

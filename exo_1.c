@@ -7,7 +7,7 @@ int main (int argc, char *argv[]){
     printf("Le nombre d’arguments qui lui a été fourni: %d\n", argc);
 
     while (*++argv){
-        if (*(argv)[0] == '-' && strlen(*argv) > 1) { ++count; }
+        if (*(argv)[0] == '-') { ++count; }
         else {
             FILE *fptr = fopen(*argv, "r");
             if (fptr != NULL) {
